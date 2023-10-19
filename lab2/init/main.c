@@ -1,6 +1,7 @@
 #include "printk.h"
 #include "sbi.h"
 #include "defs.h"
+#include "test.h"
 extern void test();
 
 int start_kernel() {
