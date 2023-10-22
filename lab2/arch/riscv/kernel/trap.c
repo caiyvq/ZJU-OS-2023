@@ -1,7 +1,7 @@
 // trap.c 
 #include "clock.h"
 #include "printk.h"
-
+#include "proc.h"
 void trap_handler(unsigned long scause, unsigned long sepc) {
     // 通过 `scause` 判断trap类型
     // 如果是interrupt 判断是否是timer interrupt
@@ -15,8 +15,10 @@ void trap_handler(unsigned long scause, unsigned long sepc) {
         unsigned long rest = scause - 0x8000000000000000;
         if (rest == 5)// 剩余位表示5时是timer interrupt
         { 
-            printk("kernel is running!\n[S] Supervisor Mode Timer Interrupt\n");
+           //printk("kernel is running!\n[S] Supervisor Mode Timer Interrupt\n");
             clock_set_next_event();
+            //lab2
+            do_timer();
         }
     }
 }

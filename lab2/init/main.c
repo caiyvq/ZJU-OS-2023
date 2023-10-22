@@ -7,7 +7,9 @@ extern void test();
 int start_kernel() {
     printk("2022");
     printk(" Hello RISC-V\n");
+    printk("idle process is running!\n\n");
     
+    // lab1*****************************
     // //思考题3
     // register int val;
     // val = csr_read(sstatus);
@@ -25,6 +27,7 @@ int start_kernel() {
     // printk("sscratch after write: ");
     // printi(val);
     // printk("\n");
+    //**********************************
 
     test(); // DO NOT DELETE !!!
 

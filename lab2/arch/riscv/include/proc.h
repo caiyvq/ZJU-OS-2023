@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-#define NR_TASKS  (1 + 31) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
+#define NR_TASKS  (1 + 3) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
 
 #define TASK_RUNNING    0 // 为了简化实验, 所有的线程都只有一种状态
 
@@ -30,6 +30,7 @@ struct task_struct {
     uint64 counter;  // 运行剩余时间
     uint64 priority; // 运行优先级 1最低 10最高
     uint64 pid;      // 线程id
+    /*size = 6 * 8 = 48*/
 
     struct thread_struct thread;
 };

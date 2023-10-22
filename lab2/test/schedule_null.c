@@ -5,6 +5,10 @@
 extern char current[];
 
 char task_test_char[NR_TASKS];
+/*
+这是一个字符数组，用于存储每个任务的字符标识。每个任务被分配一个唯一的字符标识，从 'A' 开始，
+然后逐渐增加，直到 'Z'，然后再从 'a' 开始递增，以确保每个任务有一个唯一的标识。
+*/
 uint64 task_test_priority[NR_TASKS];
 uint64 task_test_counter[NR_TASKS];
 uint64 task_test_index;
@@ -24,6 +28,7 @@ void test_init(int num_tasks) {
             task_test_char[i] = init_char + (i - 26) + 32;
         }
 
+        //这行代码用于生成一系列伪随机的任务优先级。它是一个伪随机数生成器的简单实现
         priority = (priority * 5) % 97;
         task_test_priority[i] = priority;
 

@@ -36,6 +36,7 @@ void test_init(int num_tasks) {
 }
 
 void schedule_test(){
+    printk("schedule_test\n");
     struct task_struct* _current = (struct task_struct*)current;
     uint64 counter_now = _current->counter + 1;
 
@@ -84,7 +85,7 @@ void schedule_test(){
             }
             
             if(task_test_index == output_length){
-                #ifdef SJF
+                #ifdef DSJF
                     for(int i = 0; i < output_length; i++){
                         if(SJF_output[i] != task_test_output[i]){
                             printk("\nNR_TASKS = %d, SJF test failed!\n\n", NR_TASKS);

@@ -24,6 +24,6 @@ void clock_set_next_event() {
 
     // 使用 sbi_ecall 来完成对下一次时钟中断的设置
     // YOUR CODE HERE
-    //printk("clock_set_next_event\n");
+    //printk("\nclock_set_next_event\n\n");
     sbi_ecall(0,0,next,0,0,0,0,0);//functionID==0,extensionID==0
 } 

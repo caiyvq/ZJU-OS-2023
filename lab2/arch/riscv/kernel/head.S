@@ -7,6 +7,12 @@ _start:
     # 内核引导部分的代码
     
     la sp, boot_stack_top
+
+    #lab2-----------
+    jal ra, mm_init
+
+    jal ra, task_init
+    #---------------
     
     # 时钟中断部分的代码
     # ------------------
