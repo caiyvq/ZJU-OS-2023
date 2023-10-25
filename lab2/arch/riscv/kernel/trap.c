@@ -15,7 +15,7 @@ void trap_handler(unsigned long scause, unsigned long sepc) {
         unsigned long rest = scause - 0x8000000000000000;
         if (rest == 5)// 剩余位表示5时是timer interrupt
         { 
-           //printk("kernel is running!\n[S] Supervisor Mode Timer Interrupt\n");
+            //printk("\nkernel is running!\n[S] Supervisor Mode Timer Interrupt\n");
             clock_set_next_event();
             //lab2
             do_timer();

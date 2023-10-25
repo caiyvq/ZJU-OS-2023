@@ -25,6 +25,7 @@ void test_init(int num_tasks) {
         }
 
         priority = (priority * 5) % 97;
+        printk("\n%c: priority %d\n",task_test_char[i],priority);
         task_test_priority[i] = priority;
 
         counter = (counter * 5) % 193;
@@ -36,13 +37,15 @@ void test_init(int num_tasks) {
 }
 
 void schedule_test(){
-    printk("schedule_test\n");
+    //printk("schedule_test\n");
     struct task_struct* _current = (struct task_struct*)current;
     uint64 counter_now = _current->counter + 1;
 
     uint64 num_tasks = NR_TASKS;
-    char priority_16[] = "FFFFFFFFFFFFKKKKKKKKKKKGGGGGGGGGGCCCCCCCCCDDDDDDDDJJJJJJJPPPPPPEEEEEMMMMBBBBNNNLLLOOHHI";
-    char priority_8[] = "FFFFFFFFFFFFGGGGGGGGGGCCCCCCCCCDDDDDDDDEEEEEBBBBHH";
+    //char priority_16[] = "FFFFFFFFFFFFKKKKKKKKKKKGGGGGGGGGGCCCCCCCCCDDDDDDDDJJJJJJJPPPPPPEEEEEMMMMBBBBNNNLLLOOHHI";
+    char priority_16[] = "CCCCCCCCCEEEEEDDDDDDDDKKKKKKKKKKKNNNFFFFFFFFFFFFBBBBPPPPPPJJJJJJJILLLMMMMOOHHGGGGGGGGGG";
+    //char priority_8[] = "FFFFFFFFFFFFGGGGGGGGGGCCCCCCCCCDDDDDDDDEEEEEBBBBHH";
+    char priority_8[] = "CCCCCCCCCEEEEEDDDDDDDDFFFFFFFFFFFFBBBBHHGGGGGGGGGG";
     char priority_4[] = "CCCCCCCCCDDDDDDDDBBBB";
 
     char SJF_16[] = "IHHOOLLLNNNBBBBMMMMEEEEEPPPPPPJJJJJJJDDDDDDDDCCCCCCCCCGGGGGGGGGGKKKKKKKKKKKFFFFFFFFFFFF";
@@ -77,7 +80,7 @@ void schedule_test(){
     while(1){
         if(counter_now == _current->counter + 1 && counter_now){
             counter_now--;
-            printk("%c\n", task_test_char[_current->pid]);
+            printk("\n%c\n", task_test_char[_current->pid]);
             task_test_output[task_test_index++] = task_test_char[_current->pid];
             
             for(int i = 0; i < task_test_index; i++){
@@ -90,6 +93,7 @@ void schedule_test(){
                         if(SJF_output[i] != task_test_output[i]){
                             printk("\nNR_TASKS = %d, SJF test failed!\n\n", NR_TASKS);
                             goto stuck;
+                            //break;
                         }
                     }
                     printk("\nNR_TASKS = %d, SJF test passed!\n\n", NR_TASKS);

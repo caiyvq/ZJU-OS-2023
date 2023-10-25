@@ -23,7 +23,7 @@ extern uint64 task_test_counter[];  // test_init 后, 用于初始化 task[i].co
 
 void task_init()
 {
-    printk("\ntask_init\n\n");
+    printk("task_init\n");
     test_init(NR_TASKS);
     // 1. 调用 kalloc() 为 idle 分配一个物理页
     // 2. 设置 state 为 TASK_RUNNING;
@@ -58,7 +58,7 @@ void task_init()
         task[i]->priority = task_test_priority[i];
         task[i]->pid = i;
         task[i]->thread.ra =(uint64)__dummy;
-        task[i]->thread.sp = taskPage + 4096;
+        task[i]->thread.sp = (uint64)task[i] + PGSIZE;
     }
 
     printk("...proc_init done!\n");
@@ -67,14 +67,14 @@ void task_init()
 // arch/riscv/kernel/proc.c
 void dummy()
 {
-    printk("\ndummy\n");
+    printk("dummy\n");
     schedule_test();
     uint64 MOD = 1000000007;
     uint64 auto_inc_local_var = 0;
     int last_counter = -1;
     while (1)
     {
-        if ((last_counter == -1 || current->counter != last_counter) && current->counter > 0)
+        if ((last_counter == -1 || current->counter != last_counter) && current->counter != 0)
         {
             if (current->counter == 1)
             {
@@ -85,11 +85,11 @@ void dummy()
             printk("[PID = %d] is running. auto_inc_local_var = %d\n", current->pid, auto_inc_local_var);
         }
     }
+    //printk("\n");
 }
 
 void switch_to(struct task_struct *next)
 {
-    printk("switch to [PID = %d COUNTER = %d]\n", next->pid, next->counter);
     if (next != current)
     {
         //printk("1");
@@ -99,6 +99,11 @@ void switch_to(struct task_struct *next)
         //printk("3");
         __switch_to(prev, next);
         //printk("4");
+        return;
+    }
+    else
+    {
+        return;
     }
     //printk("\nswitch_to end\n");
 }
@@ -115,7 +120,10 @@ void do_timer(void)
     }
     else
     {
-        current->counter--;
+        if (current->counter > 0)
+        {
+            current->counter--;
+        }
         if (current->counter == 0)
         {
             schedule();
@@ -133,7 +141,7 @@ void schedule(void)
     int all0 = 1;
     for (int i = 1; i < NR_TASKS; i++)
     {
-        if (task[i]->state == TASK_RUNNING && task[i]->counter > 0)
+        if (task[i]->state == TASK_RUNNING && task[i]->counter != 0)
         {
             all0 = 0;
             if (task[i]->counter < min_counter)
@@ -146,6 +154,7 @@ void schedule(void)
 
     if (all0)
     {
+        printk("\n");
         for (int i = 1; i < NR_TASKS; i++)
         {
             task[i]->counter = rand();
@@ -157,42 +166,51 @@ void schedule(void)
     {
         if (next)
         {
+            printk("\n\nswitch to [PID = %d COUNTER = %d]\n\n", next->pid, next->counter);
             switch_to(next);
         }
     }
     //printk("\nall0 = %d\n\n", all0);
     //printk("\nmin_counter = %d\n\n", min_counter);
 }
-#endif
+#else
 
-#ifdef DPRIORITY
 void schedule(void) {
     /* YOUR CODE HERE */
-    uint64 c, i, next;
-    struct task_struct** p;
-	while(1) {
-		c = 0;
-		next = 0;
-		i = NR_TASKS;
-		p = &task[NR_TASKS];
-		while(--i) {
-			if (!*--p) continue;
-			if ((*p)->state == TASK_RUNNING && (*p)->counter > c)
-				c = (*p)->counter, next = i;
-		}
-        
-		if (c) break;
-        // else all counters are 0s
-        printk("\n");
-        for(p = &task[NR_TASKS-1]; p > &task[0]; --p) {
-            if (*p) {
-                (*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
-                printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", (*p)->pid, (*p)->priority, (*p)->counter);
+    int max_p = 0;
+    struct task_struct *next;
+    int all0 = 1;
+    for (int i = 1; i < NR_TASKS; i++)
+    {
+        if (task[i]->state == TASK_RUNNING && task[i]->counter != 0 && task[i]->priority != 0)
+        {
+            all0 = 0;
+            if (task[i]->priority > max_p)
+            {
+                max_p = task[i]->priority;
+                next = task[i];
             }
         }
-	}
-    
-    printk("\nswitch to [PID = %d PRIORITY = %d COUNTER = %d]\n", task[next]->pid, task[next]->priority, task[next]->counter);
-	switch_to(task[next]);
+    }
+
+    if (all0)
+    {
+        printk("\n");
+        for (int i = 1; i < NR_TASKS; i++)
+        {
+            task[i]->counter = rand();
+            task[i]->priority = rand();
+            printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", task[i]->pid, task[i]->priority, task[i]->counter);
+        }
+        schedule();
+    }
+    else
+    {
+        if (next)
+        {
+            printk("\n\nswitch to [PID = %d PRIORITY = %d COUNTER = %d]\n\n", next->pid, next->priority, next->counter);
+            switch_to(next);
+        }
+    }
 }
 #endif
