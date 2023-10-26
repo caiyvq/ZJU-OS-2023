@@ -173,6 +173,7 @@ void schedule(void)
     //printk("\nall0 = %d\n\n", all0);
     //printk("\nmin_counter = %d\n\n", min_counter);
 }
+
 #else
 
 void schedule(void) {
