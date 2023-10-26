@@ -178,17 +178,53 @@ void schedule(void)
 
 void schedule(void) {
     /* YOUR CODE HERE */
-    int max_p = 0;
+    // int max_p = 0;
+    // struct task_struct *next;
+    // int all0 = 1;
+    // for (int i = 1; i < NR_TASKS; i++)
+    // {
+    //     if (task[i]->state == TASK_RUNNING && task[i]->counter != 0 && task[i]->priority != 0)
+    //     {
+    //         all0 = 0;
+    //         if (task[i]->priority > max_p)
+    //         {
+    //             max_p = task[i]->priority;
+    //             next = task[i];
+    //         }
+    //     }
+    // }
+
+    // if (all0)
+    // {
+    //     printk("\n");
+    //     for (int i = 1; i < NR_TASKS; i++)
+    //     {
+    //         task[i]->counter = rand();
+    //         task[i]->priority = rand();
+    //         printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", task[i]->pid, task[i]->priority, task[i]->counter);
+    //     }
+    //     schedule();
+    // }
+    // else
+    // {
+    //     if (next)
+    //     {
+    //         printk("\n\nswitch to [PID = %d PRIORITY = %d COUNTER = %d]\n\n", next->pid, next->priority, next->counter);
+    //         switch_to(next);
+    //     }
+    // }
+
+    int max = 0;
     struct task_struct *next;
     int all0 = 1;
-    for (int i = 1; i < NR_TASKS; i++)
+    for (int i = NR_TASKS-1; i > 0; i--)
     {
-        if (task[i]->state == TASK_RUNNING && task[i]->counter != 0 && task[i]->priority != 0)
+        if (task[i]->state == TASK_RUNNING && task[i]->counter != 0)
         {
             all0 = 0;
-            if (task[i]->priority > max_p)
+            if (task[i]->counter > max)
             {
-                max_p = task[i]->priority;
+                max = task[i]->counter;
                 next = task[i];
             }
         }
@@ -197,10 +233,10 @@ void schedule(void) {
     if (all0)
     {
         printk("\n");
-        for (int i = 1; i < NR_TASKS; i++)
+        for (int i = NR_TASKS-1; i > 0; i--)
         {
-            task[i]->counter = rand();
-            task[i]->priority = rand();
+            task[i]->counter = (task[i]->counter>>1)+task[i]->priority;
+            //task[i]->priority = rand();
             printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", task[i]->pid, task[i]->priority, task[i]->counter);
         }
         schedule();
@@ -213,5 +249,24 @@ void schedule(void) {
             switch_to(next);
         }
     }
+
+    // int c = -1;
+	// int next = 0;
+	// int i = NR_TASKS;
+    // while (1) {
+	// 	struct task_struct **p = &task[NR_TASKS];
+	// 	while (--i) {
+	// 		if (!*--p)
+	// 			continue;
+	// 		if ((*p)->state == TASK_RUNNING && (*p)->counter > c)
+	// 			c = (*p)->counter, next = i;
+	// 	}
+	// 	if (c) break;
+	// 	for(p = &task[NR_TASKS] ; p > &task[0] ; --p)
+	// 		if (*p)
+	// 			(*p)->counter = ((*p)->counter >> 1) +
+	// 					(*p)->priority;
+	// }
+	// switch_to(task[next]);
 }
 #endif
