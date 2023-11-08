@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.cpp": "cpp",
+        "printk.h": "c",
+        "sbi.h": "c",
+        "stddef.h": "c",
+        "types.h": "c",
+        "test.h": "c"
+    }
+}
