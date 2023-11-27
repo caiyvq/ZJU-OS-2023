@@ -42,7 +42,10 @@ void kfreerange(char *start, char *end) {
     }
 }
 
+//mm.c 中初始化的函数接收的起始结束地址需要调整为虚拟地址。
 void mm_init(void) {
-    kfreerange(_ekernel, (char *)PHY_END);
+    // kfreerange(_ekernel, (char *)PHY_END);
+    kfreerange(_ekernel, (char *)(PHY_END + PA2VA_OFFSET));
     printk("\n...mm_init done!\n");
 }
+

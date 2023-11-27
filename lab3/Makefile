@@ -4,7 +4,7 @@ GCC=${CROSS_}gcc
 LD=${CROSS_}ld
 OBJCOPY=${CROSS_}objcopy
 
-ISA=rv64imafd
+ISA=rv64imafd_zifencei
 ABI=lp64
 
 INCLUDE = -I $(shell pwd)/include -I $(shell pwd)/arch/riscv/include
@@ -13,7 +13,7 @@ CFLAG = ${CF} ${INCLUDE} -D DSJF
 # CFLAG = ${CF} ${INCLUDE} -D DPRIORITY
 
 .PHONY:all TEST run test-run debug test-debug clean
-all:
+all: clean
 	${MAKE} -C lib all
 	${MAKE} -C test all
 	${MAKE} -C init all
