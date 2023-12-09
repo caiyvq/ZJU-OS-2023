@@ -5,6 +5,7 @@
 #include "rand.h"
 #include "printk.h"
 #include "test.h"
+#include "vm.h"
 
 // arch/riscv/kernel/proc.c
 
@@ -20,6 +21,10 @@ struct task_struct *task[NR_TASKS]; // 线程数组, 所有的线程都保存在
  */
 extern uint64 task_test_priority[]; // test_init 后, 用于初始化 task[i].priority 的数组
 extern uint64 task_test_counter[];  // test_init 后, 用于初始化 task[i].counter  的数组
+
+extern unsigned long  swapper_pg_dir[512] __attribute__((__aligned__(0x1000)));
+extern char uapp_start[];//uapp段
+extern char uapp_end[];
 
 void task_init()
 {
@@ -40,6 +45,18 @@ void task_init()
     idle->pid = 0;
     current = idle;
     task[0] = idle;
+    idle->thread.sepc = USER_START;
+    idle->thread.sstatus = 0x40020;//spp[8]=0   spie[5]=1  sum[18]=1
+    idle->thread.sscratch = USER_END;
+    idle->pgd=(uint64*)alloc_page();
+    for(int j = 0; j<512; j++)
+    {
+        idle->pgd[j] = swapper_pg_dir[j];
+    }
+    create_mapping(idle->pgd, USER_START, (uint64)uapp_start-PA2VA_OFFSET, (uint64)uapp_end-(uint64)uapp_start, 0b11111);
+    uint64 u_mode_stack = alloc_page();
+    create_mapping(idle->pgd, USER_END-PGSIZE, u_mode_stack - PA2VA_OFFSET, PGSIZE, 0b11111);
+    // idle->pgd=idle->pgd-PA2VA_OFFSET;
 
     // 1. 参考 idle 的设置, 为 task[1] ~ task[NR_TASKS - 1] 进行初始化
     // 2. 其中每个线程的 state 为 TASK_RUNNING, 此外，为了单元测试的需要，counter 和 priority 进行如下赋值：
@@ -59,9 +76,26 @@ void task_init()
         task[i]->pid = i;
         task[i]->thread.ra =(uint64)__dummy;
         task[i]->thread.sp = (uint64)task[i] + PGSIZE;
+        //初始化我们刚刚在 thread_struct 中添加的三个变量
+        task[i]->thread.sepc = USER_START;
+        task[i]->thread.sstatus = 0x40020;//spp[8]=0   spie[5]=1  sum[18]=1
+        task[i]->thread.sscratch = USER_END;
+        //每个用户态进程都分配单独的页表
+        task[i]->pgd=(uint64*)alloc_page();
+        //将内核页表 （ swapper_pg_dir ） 复制到每个进程的页表中。
+        for(int j = 0; j<512; j++)
+        {
+           task[i]->pgd[j] = swapper_pg_dir[j];
+        }
+        //将 uapp 所在的页面映射到每个进行的页表中
+        create_mapping(task[i]->pgd, USER_START, (uint64)uapp_start-PA2VA_OFFSET, (uint64)uapp_end-(uint64)uapp_start, 0b11111);
+        //申请用户态栈,放在user space 的最后一个页面
+        uint64 u_mode_stack = alloc_page();
+        create_mapping(task[i]->pgd, USER_END-PGSIZE, u_mode_stack - PA2VA_OFFSET, PGSIZE, 0b11111);
+        // task[i]->pgd=task[i]->pgd-PA2VA_OFFSET;
     }
 
-    printk("proc_init done!\n");
+    printk("...proc_init done!\n");
 }
 
 // arch/riscv/kernel/proc.c

@@ -7,8 +7,9 @@ _start:
     # 内核引导部分的代码
     
     #la sp, boot_stack_top
-    #sp in lab2
-    li sp, 0x80205000
+    #physical_start + opensbi_size
+    #start of kernel
+    li sp, 0x80200000
 
     #lab3------------
     jal ra, setup_vm

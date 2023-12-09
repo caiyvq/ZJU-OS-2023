@@ -33,10 +33,10 @@ int start_kernel() {
 
     //lab3
     //思考题1
-    *_stext = 0;
-    *_srodata = 0;
-    printk("_stext = %ld\n",*_stext);
-    printk("_srodata = %ld\n",*_srodata);
+    // *_stext = 0;
+    // *_srodata = 0;
+    // printk("_stext = %ld\n",*_stext);
+    // printk("_srodata = %ld\n",*_srodata);
 
     test(); // DO NOT DELETE !!!
 

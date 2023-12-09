@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/arch/riscv/include",
+                "${workspaceFolder}/include"
+            ],
+            "defines": []
+        }
+    ],
+    "version": 4
+}

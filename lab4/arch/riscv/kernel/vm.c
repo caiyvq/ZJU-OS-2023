@@ -56,21 +56,21 @@ void setup_vm_final(void) {
     // No OpenSBI mapping required
 
     // mapping kernel text X|-|R|V
-    va = _stext;
+    va = (uint64)_stext;
     pa = va - PA2VA_OFFSET;
     sz = _etext - _stext;
     perm = 0b1011;
     create_mapping(swapper_pg_dir, va, pa, sz, perm);
 
     // mapping kernel rodata -|-|R|V
-    va = _srodata;
+    va = (uint64)_srodata;
     pa = va - PA2VA_OFFSET;
     sz = _erodata - _srodata;
     perm = 0b11;
     create_mapping(swapper_pg_dir, va, pa, sz, perm);
 
     // mapping other memory -|W|R|V
-    va = _sdata;
+    va = (uint64)_sdata;
     pa = va - PA2VA_OFFSET;
     sz = _edata - _sdata;
     perm = 0b111;
@@ -87,8 +87,6 @@ void setup_vm_final(void) {
 
     // flush icache
     asm volatile("fence.i");
-
-    printk("setup_vm_final done\n");
     return;
 }
 
@@ -116,7 +114,7 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm)
         if ((pgtbl[vpn2] & 1) == 0) 
         {
             page = (uint64*)kalloc();
-            pgtbl[vpn2] = (1 | (((uint64)page >> 12) << 10));
+            pgtbl[vpn2] = (1 | ((uint64)page >> 12) << 10);
         }
         table = &(pgtbl[vpn2]);
 
@@ -125,7 +123,7 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm)
         if ((table[vpn1] & 1) == 0) 
         {
             page = (uint64*)kalloc();
-            table[vpn1] = (1 | (((uint64)page >> 12) << 10));
+            table[vpn1] = (1 | ((uint64)page >> 12) << 10);
         }
         table = &(table[vpn1]);
 
@@ -134,12 +132,11 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, uint64 perm)
         if ((table[vpn0] & 1) == 0) 
         {
             page = (uint64*)kalloc();
-            table[vpn0] = (1 | (((uint64)page >> 12) << 10));
+            table[vpn0] = (1 | ((uint64)page >> 12) << 10);
         }
         table[vpn0] = ((pa >> 12) << 10) | perm;
 
         va += PGSIZE;
         pa += PGSIZE;
     }
-    printk("create mapping done\n");
 }
